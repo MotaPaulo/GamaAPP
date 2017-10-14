@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,12 +22,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
+    private String move_id = "1";
+    private String MOVIES_DB_URL =
+            "https://api.themoviedb.org/3/movie/top_rated?api_key=eb0082822481806576e93cc93ad2e1f8&language=en-US&page=1";
+    private static final String API_KEY_VALUE = "eb0082822481806576e93cc93ad2e1f8";
+    @BindView(R.id.lista_categorias)
+    protected RecyclerView mListaCategorias;
 
-    private RecyclerView listaCategorias;
-    private String categoriesEndPoint = "http://davids-restaurant.herokuapp.com/categories.json";
+
 
     //Cria a activity e executa a chamada à API
     @Override
@@ -34,8 +41,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        listaCategorias = (RecyclerView) findViewById(R.id.lista_categorias);
-        setTitle("Categorias");
+        setTitle("TOP FILMES");
         new getCategoriesAsync().execute();
     }
 
@@ -48,7 +54,10 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(Void... voids) {
 
             try{
-                URL url = new URL(categoriesEndPoint);
+                Uri builtUri = Uri.parse(MOVIES_DB_URL).buildUpon()
+                        .appendQueryParameter("api_key",API_KEY_VALUE).build();
+
+                URL url = new URL(builtUri.toString());
                 String response = getResponseFromHttpUrl(url);
                 return response;
             }catch (Exception e){
@@ -61,13 +70,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            Log.d("filme",s);
             if(s == null) return;
 
             try {
-                JSONArray array = new JSONArray(s);
-                listaCategorias.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                JSONObject obj = new JSONObject(s);
+                JSONArray array = new JSONArray(obj.getString("results"));
+                mListaCategorias.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                 CategoriasAdapter adapter = new CategoriasAdapter(getApplicationContext(), array);
-                listaCategorias.setAdapter(adapter);
+                mListaCategorias.setAdapter(adapter);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }

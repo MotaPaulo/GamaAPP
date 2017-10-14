@@ -7,8 +7,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,7 +61,10 @@ public class CategoriasAdapter extends RecyclerView.Adapter<CategoriasAdapter.Vi
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
+        private String imageString = "https://image.tmdb.org/t/p/w500";
+
         private TextView categoryName;
+        private ImageView moveImage;
         private CardView cardView;
         private JSONObject categoria;
 
@@ -66,6 +72,7 @@ public class CategoriasAdapter extends RecyclerView.Adapter<CategoriasAdapter.Vi
             super(itemView);
             categoryName = (TextView) itemView.findViewById(R.id.categoria_name);
             cardView = (CardView) itemView.findViewById(R.id.categoria_cardview);
+            moveImage = (ImageView) itemView.findViewById(R.id.iVMainLogo);
             cardView.setOnClickListener(this);
 
         }
@@ -73,7 +80,10 @@ public class CategoriasAdapter extends RecyclerView.Adapter<CategoriasAdapter.Vi
         public void bindData(JSONObject category){
             categoria = category;
             try {
-                categoryName.setText(category.getString("name"));
+                categoryName.setText(category.getString("title"));
+                Picasso.with(context).load(imageString.concat(category.getString("poster_path")))
+                        .into(moveImage);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -84,6 +94,16 @@ public class CategoriasAdapter extends RecyclerView.Adapter<CategoriasAdapter.Vi
         public void onClick(View view) {
             Intent it = new Intent(context, Main2Activity.class);
             it.putExtra("CATEGORIA_TAG",categoria.toString());
+            try {
+                it.putExtra("TITLE_TAG",categoria.getString("title"));
+                it.putExtra("BANNER_TAG","https://image.tmdb.org/t/p/w500"+
+                        categoria.getString("backdrop_path"));
+                it.putExtra("ANO_TAG",categoria.getString("release_date"));
+                it.putExtra("DESC_TAG",categoria.getString("overview"));
+                it.putExtra("RATE_TAG",categoria.getString("vote_average"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(it);
         }

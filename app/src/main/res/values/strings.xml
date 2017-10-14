@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">ProjetoTeste</string>
+    <string name="average">Average</string>
+    <string name="year">Year</string>
+    <string name="description">Description</string>
+    <string name="movie_photo">Movie photo</string>
 </resources>
